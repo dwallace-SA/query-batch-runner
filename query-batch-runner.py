@@ -98,7 +98,7 @@ def runQueryBatch():
             quit()
 
         if args.endpoint == True:
-            print(f"Set new allegrograph endpoint.")
+            print(f"   Set new allegrograph endpoint.")
             # Read in and clean up endpoint, removing /# if included.
             endpoint_in = cleanupEndpoint(input(f"Old endpoint: {newauth['endpoint']}\nNew endpoint: "))
             # Write endpoint to config file. If no input given, ask if old endpoint should be kept or deleted.
@@ -109,7 +109,8 @@ def runQueryBatch():
                 newauth['endpoint'] = endpoint_in
 
         if args.user == True:
-            newauth['username'] = input(f'\nCurrent username: {newauth['username']}\nSet new username: ')
+            print('\n   Update saved AllegroGraph username:')
+            newauth['username'] = input(f'\n   Current username: {newauth['username']}\n   Set new username: ')
             
         with open('config.json', 'w') as auth:
             auth.write(json.dumps(newauth))
