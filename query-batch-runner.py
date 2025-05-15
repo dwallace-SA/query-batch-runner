@@ -27,7 +27,6 @@ def cleanupEndpoint(input: str):
 
 if not config_file.exists():
     try:
-        print("\nConfig file initial setup\n") # Debugging only
         user_init=''
         endpoint_init = ''
 
@@ -42,7 +41,7 @@ if not config_file.exists():
 
         ### INITIAL SETUP ###
         print('Initializing config, press enter / leave empty to skip.')
-        user_init = input('Set default AllegroGraph username (can be changed later)\n   Username: ')
+        user_init = input('\nSet default AllegroGraph username (can be changed later)\n   Username: ')
         endpoint_init = cleanupEndpoint(input('Set default AllegroGraph endpoint (can be changed later)\n   Endpoint: '))
         
         config_string = f'"username":"{user_init}","endpoint":"{endpoint_init}"'

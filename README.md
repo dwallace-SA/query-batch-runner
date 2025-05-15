@@ -18,3 +18,7 @@ options:
                        then quits.
   -u, --user           Change stored AllegroGraph username.
 ```
+
+### stored-queries
+
+I've included a `./stored-queries` directory which is optional, and includes a list of ABox Versioning queries that have been selected for execution as of 5/15. This may be updated or removed as the script and ABox Versioning project evolve.
