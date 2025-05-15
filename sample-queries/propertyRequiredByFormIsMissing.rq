@@ -22,9 +22,6 @@ where {
   select distinct ?s ?form ?targetClass
   
   where {
-  bind(<https://app.semanticarts.com/id/_Form_assignment_consumption_rate>  as ?form)
-  
-  
     ?form rdf:type dcao:Form ;
           dcao:targetClass ?targetClass ;
           dcao:field       ?formField ;
@@ -56,6 +53,12 @@ where {
 
   # members of the class that are missing the required property
   filter not exists {?s ?path ?o .} 
+
+ # older records to exclude (employment agreement ended before 2021)
+  filter not exists {
+         ?s rdf:type sao:WorksFor ; 
+            gist:actualEndDate ?endDate . 
+         filter(str(?endDate) < "2021") }
 
   bind(?path as ?missingProperty)
 }
