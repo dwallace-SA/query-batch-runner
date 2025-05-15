@@ -1,0 +1,62 @@
+# Find instances that are missing an outbound property that is required by a form
+
+prefix gist:  <https://w3id.org/semanticarts/ns/ontology/gist/>
+prefix gistd: <https://w3id.org/semanticarts/ns/data/gist/>
+prefix owl: <http://www.w3.org/2002/07/owl#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix sh: <http://www.w3.org/ns/shacl#>
+prefix skos: <http://www.w3.org/2004/02/skos/core#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+prefix dcao: <https://ontologies.semanticarts.com/dcao/>
+prefix sao:   <https://ontologies.semanticarts.com/SemArts/>
+prefix ibbeo: <https://ontologies.industrybuildingblocks.com/ibbeo/>
+prefix ex: <http://example.org/>
+
+select ?s ?missingProperty ?form ?formField ?targetClass
+where {
+
+  { ############################################################## subquery
+  # members of target class that are a match to the fixed values of the form
+  select distinct ?s ?form ?targetClass
+  
+  where {
+  bind(<https://app.semanticarts.com/id/_Form_assignment_consumption_rate>  as ?form)
+  
+  
+    ?form rdf:type dcao:Form ;
+          dcao:targetClass ?targetClass ;
+          dcao:field       ?formField ;
+          .
+    
+    ?formField dcao:path ?path ;
+               dcao:hasValue ?value ;
+               .
+
+    filter(!contains(str(?path), "blanknode"))
+
+    ?s rdf:type ?targetClass ;
+       ?path ?value ;
+       .
+  }
+  } ############################# end subquery
+
+  # form fields that do not have a fixed value and are required
+
+  ?form dcao:field ?formField .
+
+  filter not exists {?formField dcao:hasValue ?value .}
+
+  ?formField dcao:path ?path ;
+             dcao:minCount "1"^^xsd:integer ; 
+             .
+
+  filter(!contains(str(?path), "blanknode"))
+
+  # members of the class that are missing the required property
+  filter not exists {?s ?path ?o .} 
+
+  bind(?path as ?missingProperty)
+}
+order by ?s ?missingProperty ?form ?formField

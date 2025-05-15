@@ -1,0 +1,190 @@
+# Find queries that might need to include OPTIONAL based on as-used min cardinality 0
+# the values statement could be replaced by a query to get as-used or target min cardinalities
+# includes the case where semicolons are not used, so the class and outbound property are in different statements
+# requires manual review of results to verify that the property is being used with a member of the class
+# a more precise query might be possible, but regex gave some trouble so the query does not use it to identify the statement with the property
+# used concat within the regex statements to eliminate one level of indirection
+
+prefix gist:  <https://w3id.org/semanticarts/ns/ontology/gist/>
+prefix gistd: <https://w3id.org/semanticarts/ns/data/gist/>
+prefix owl: <http://www.w3.org/2002/07/owl#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix sh: <http://www.w3.org/ns/shacl#>
+prefix skos: <http://www.w3.org/2004/02/skos/core#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+prefix dcao: <https://ontologies.semanticarts.com/dcao/>
+prefix sao:   <https://ontologies.semanticarts.com/SemArts/>
+prefix ibbeo: <https://ontologies.industrybuildingblocks.com/ibbeo/>
+prefix ex: <http://example.org/>
+
+select distinct ?variable ?classString ?outboundPropertyString ?sparqlSnippet 
+
+where {
+
+  # class/property with as-used cardinality zero
+  # this section can be replaced with a query   
+  values (?classString                     ?outboundPropertyString) {
+         (":BasePayRate"                   ":plannedEndDate")
+         (":BasePayRate"                   ":prefLabel")
+         (":BaseUnit"                      ":symbol")
+         (":BaseUnit"                      ":unitSymbol")
+         (":BillingRate"                   ":plannedEndDate")
+         (":ClientProject"                 ":hasInvoiceType")
+         (":ClientProject"                 ":hasKnownInvoiceProcedure")
+         (":ClientProject"                 ":hasRateType")
+         (":ClientProject"                 ":isAffectedBy")
+         (":ClientProject"                 ":plannedEndDate")
+         (":ComponentConfiguration"        ":hasLine")
+         (":ComponentConfiguration"        ":xAxisFormat")
+         (":ComponentConfiguration"        ":yAxisFormat")
+         (":ComponentLink"                 ":isCategorizedBy")
+         (":ComponentLink"                 ":isConnectedTo")
+         (":ComponentLink"                 ":parameters")
+         (":ComponentLink"                 ":sequence")
+         (":DurationUnit"                  ":symbol")
+         (":DurationUnit"                  ":unitSymbol")
+         (":EmploymentAgreement"           ":actualEndDate")
+         (":EmploymentAgreement"           ":averageFrom")
+         (":EmploymentAgreement"           ":hasCommunicationAddress")
+         (":EmploymentAgreement"           ":hasIdentifier")
+         (":Executable"                    ":description")
+         (":Executable"                    ":hasDeleteExecutable")
+         (":Executable"                    ":hasDirectPart")
+         (":Executable"                    ":isAffectedBy")
+         (":Executable"                    ":isCategorizedBy")
+         (":Executable"                    ":isSubViewOf")
+         (":Executable"                    ":parameters")
+         (":Executable"                    ":parmaters")
+         (":ExecutableType"                ":label")
+         (":FinancialBusinessEvent"        ":description")
+         (":FinancialBusinessEvent"        ":hasObligee")
+         (":FinancialBusinessEvent"        ":hasObligor")
+         (":FinancialBusinessEvent"        ":hasPayee")
+         (":FinancialBusinessEvent"        ":hasPayor")
+         (":Form"                          ":field")
+         (":Form"                          ":hasTrigger")
+         (":Form"                          ":isCategorizedBy")
+         (":Form"                          ":xone")
+         (":FormattedContent"              ":isAbout")
+         (":FormField"                     ":class")
+         (":FormField"                     ":datatype")
+         (":FormField"                     ":defaultValue")
+         (":FormField"                     ":hasValue")
+         (":FormField"                     ":maxCount")
+         (":FormField"                     ":maxCount")
+         (":FormField"                     ":maxInclusive")
+         (":FormField"                     ":minCount")
+         (":FormField"                     ":minCount")
+         (":FormField"                     ":minExclusive")
+         (":FormField"                     ":minInclusive")
+         (":FormField"                     ":node")
+         (":FormField"                     ":pattern")
+         (":FormField"                     ":referencesExe")
+         (":FormField"                     ":sequence")
+         (":FunctionalProperty"            ":subPropertyOf")
+         (":GeneralLedgerAccountCode"      ":description")
+         (":GeoRegion"                     ":isGeographicallyContainedIn")
+         (":IbbOrganization"               ":prefLabel")
+         (":IndividualContractorAgreement" ":actualEndDate")
+         (":IndividualContractorAgreement" ":averageFrom")
+         (":IndividualContractorAgreement" ":hasCommunicationAddress")
+         (":IndividualContractorAgreement" ":hasIdentifier")
+         (":IndividualContractorAgreement" ":title")
+         (":InverseFunctionalProperty"     ":subPropertyOf")
+         (":JournalEntryLineItem"          ":hasParticipant")
+         (":Magnitude"                     ":numericValue")
+         (":Magnitude"                     ":oldNumericValue")
+         (":MediaType"                     ":hasFileExtension")
+         (":MediaType"                     ":prefLabel")
+         (":MediaType"                     ":uniqueText")
+         (":ObjectProperty"                ":deprecated")
+         (":ObjectProperty"                ":description")
+         (":ObjectProperty"                ":prefLabel")
+         (":ObjectProperty"                ":subPropertyOf")
+         (":Obligee"                       ":hasCommunicationAddress")
+         (":Organization"                  ":categorizedBy")
+         (":Organization"                  ":hasCommunicationAddress")
+         (":Organization"                  ":isIdentifiedBy")
+         (":Organization"                  ":prefLabel")
+         (":Organization"                  ":sameAs")
+         (":Payor"                         ":hasCommunicationAddress")
+         (":PayPeriod"                     ":actualEndMicrosecond")
+         (":PayStub"                       ":averageFrom")
+         (":PayStub"                       ":isConnectedTo")
+         (":Person"                        ":prefLabel")
+         (":PositionAssignment"            ":isConnectedTo")
+         (":PositionAssignment"            ":plannedEndDate")
+         (":PositionAssignment"            ":plannedStartDate")
+         (":Provenance"                    ":containsText")
+         (":Provenance"                    ":hasParticipant")
+         (":Provenance"                    ":isDirectPartOf")
+         (":Provenance"                    ":isRecordedAt")
+         (":Provenance"                    ":recordedAt")
+         (":ResourceConsumptionAdjustment" ":actualEndMinute")
+         (":ResourceConsumptionAdjustment" ":isRecordedAt")
+         (":ResourceConsumptionEvent"      ":actualEndMicrosecond")
+         (":ResourceConsumptionEvent"      ":prefLabel")
+         (":Restriction"                   ":allValuesFrom")
+         (":Restriction"                   ":cardinality")
+         (":Restriction"                   ":hasValue")
+         (":Restriction"                   ":maxQualifiedCardinality")
+         (":Restriction"                   ":minCardinality")
+         (":Restriction"                   ":onClass")
+         (":Restriction"                   ":someValuesFrom")
+         (":SemanticArts"                  ":isIdentifiedBy")
+         (":SPARQLQueryType"               ":isCompatibleWith")
+         (":StatusTypes"                   ":preflabel")
+         (":StatusTypes"                   ":prefLabel")
+         (":TaskAssignment"                ":plannedEndDate")
+         (":TaskAssignment"                ":plannedStartDate")
+         (":Thing"                         ":symbol")
+         (":Thing"                         ":unitSymbol")
+         (":Trigger"                       ":isCategorizedBy")
+         (":UnitOfMeasure"                 ":closeMatch")
+         (":UnitOfMeasure"                 ":conversionFactor")
+         (":UnitOfMeasure"                 ":hasBaseUnit")
+         (":UnitOfMeasure"                 ":isMemberOf")
+         (":UnitOfMeasure"                 ":symbol")
+         (":UnitOfMeasure"                 ":unitSymbol")
+         (":View"                          ":description")
+         (":View"                          ":hasDeleteExecutable")
+         (":View"                          ":hasDirectPart")
+         (":View"                          ":isAffectedBy")
+         (":View"                          ":isSubViewOf")
+         (":View"                          ":parameters")
+         (":View"                          ":parmaters")
+         (":WorkLocation"                  ":actualEndDate")
+         (":WorksFor"                      ":actualEndDate")
+         (":WorksFor"                      ":actualStartDate")
+         (":WorksFor"                      ":averageFro")
+         (":WorksFor"                      ":hasCommunicationAddress")
+         (":WorksFor"                      ":hasIdentifier")
+         (":WorksFor"                      ":title")
+
+         }
+
+  # get the SPARQL queries
+  ?executableType rdf:type dcao:SPARQLQueryType .
+  ?executable rdf:type dcao:Executable ;
+              gist:categorizedBy ?executableType ;  # the executable is one of the SPARQL query types
+              dcao:hasExecutableContent ?sparql .   
+
+
+  # format SPARQL query and remove OPTIONAL and FILTER NOT EXIST sections (does not do nesting cleanly)
+  bind(replace(str(?sparql),   "[^ -~]", " ")                            as ?sparqlString1)  # remove unprintable characters
+  bind(replace(?sparqlString1, " [ ]+", " ")                             as ?sparqlString2)  # replace multiple spaces with one
+  bind(replace(?sparqlString2, "^.*WHERE", "WHERE", "i")                 as ?sparqlString3)  # chop off prior to WHERE clause
+  bind(replace(?sparqlString3, "OPTIONAL[ ]*[{].*[}]", "", "i")          as ?sparqlString4)
+  bind(replace(?sparqlString4, "FILTER NOT EXISTS[ ]*[{].*[}]", "", "i") as ?sparqlString)
+  
+  filter(regex(?sparqlString, concat("rdf:type [^ ]+", ?classString, " [.]")))
+
+  bind(replace(?sparqlString,  concat(".*([?][^ ]+ rdf:type [^ ]+[^ ]+", ?classString, ".*)$"), "$1") as ?sparqlSnippet)
+  bind(replace(?sparqlSnippet, concat(".*([?][^ ]+) rdf:type [^ ]+[^ ]+", ?classString, ".*"), "$1") as ?variable)
+  
+  filter(contains(?sparqlSnippet, ?outboundPropertyString))
+
+  }
+order by ?variable ?classString ?outboundPropertyString                                           

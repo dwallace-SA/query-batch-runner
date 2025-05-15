@@ -1,0 +1,27 @@
+# find subjects that should have a type but do not
+# these will not show up in the cardinality report, which starts by finding properties used with each class
+
+prefix gist:  <https://w3id.org/semanticarts/ns/ontology/gist/>
+prefix gistd: <https://w3id.org/semanticarts/ns/data/gist/>
+prefix owl: <http://www.w3.org/2002/07/owl#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix sh: <http://www.w3.org/ns/shacl#>
+prefix skos: <http://www.w3.org/2004/02/skos/core#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+select distinct ?s 
+
+where {  
+  
+  ?s ?p ?o .
+  
+  filter(!isBlank(?s))
+  filter(!contains(str(?s), "blanknode"))
+  
+  filter not exists {?s rdf:type ?type .}
+  filter not exists {?s rdfs:subClassOf ?superClass .}
+  filter not exists {?s rdfs:subPropertyOf ?superProperty .}
+  }
+order by ?s
+

@@ -1,0 +1,74 @@
+# undefined properties 
+# lists things that are used as properties but are not defined
+
+prefix owl: <http://www.w3.org/2002/07/owl#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix dcao: <https://ontologies.semanticarts.com/dcao/>
+
+select distinct ?p  ?propertyType
+
+where {
+         
+  ?s ?p ?o .
+  
+  optional {?p rdf:type ?propertyType .}
+  
+  # filter out properties that have a defined type
+  filter not exists {
+      ?p rdf:type ?propertyType.
+      filter (?propertyType in (
+        <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>,  # e.g. in named graph with skos ontology
+        <http://www.w3.org/2002/07/owl#ObjectProperty>,
+        <http://www.w3.org/2002/07/owl#AnnotationProperty>, 
+        <http://www.w3.org/2002/07/owl#TransitiveProperty>,
+        <http://www.w3.org/2002/07/owl#SymmetricProperty>, 
+        <http://www.w3.org/2002/07/owl#InverseFunctionalProperty>, 
+        <http://www.w3.org/2002/07/owl#DatatypeProperty>, 
+        <http://www.w3.org/2002/07/owl#FunctionalProperty> 
+        ))
+              
+      }
+  
+  # filter out valid properties from standards or external ontologies
+    filter (?p not in (
+      <https://ontologies.industrybuildingblocks.com/ibbeo/hasCompetingOrganization>,
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#first>,	 
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest>, 	 
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#subClassOf>, 	 
+      <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>, 	 
+      <http://www.w3.org/2000/01/rdf-schema#comment>, 	 
+      <http://www.w3.org/2000/01/rdf-schema#domain>, 	 
+      <http://www.w3.org/2000/01/rdf-schema#label>, 	 
+      <http://www.w3.org/2000/01/rdf-schema#range>, 	 
+      <http://www.w3.org/2000/01/rdf-schema#subClassOf>, 	 
+      <http://www.w3.org/2000/01/rdf-schema#subPropertyOf>, 	 
+      <http://www.w3.org/2002/07/owl#allValuesFrom>, 	 
+      <http://www.w3.org/2002/07/owl#cardinality>, 	 
+      <http://www.w3.org/2002/07/owl#complementOf>, 	 
+      <http://www.w3.org/2002/07/owl#deprecated>, 	 
+      <http://www.w3.org/2002/07/owl#disjointWith>, 	 
+      <http://www.w3.org/2002/07/owl#distinctMembers>, 	 
+      <http://www.w3.org/2002/07/owl#equivalentClass>, 	 
+      <http://www.w3.org/2002/07/owl#hasValue>, 	 
+      <http://www.w3.org/2002/07/owl#imports>, 	 
+      <http://www.w3.org/2002/07/owl#intersectionOf>, 	 
+      <http://www.w3.org/2002/07/owl#inverseOf>, 	 
+      <http://www.w3.org/2002/07/owl#maxCardinality>, 	 
+      <http://www.w3.org/2002/07/owl#maxQualifiedCardinality>, 	 
+      <http://www.w3.org/2002/07/owl#minCardinality>, 	 
+      <http://www.w3.org/2002/07/owl#minQualifiedCardinality>, 	 
+      <http://www.w3.org/2002/07/owl#onClass>, 	 
+      <http://www.w3.org/2002/07/owl#onProperty>, 	 
+      <http://www.w3.org/2002/07/owl#oneOf>, 	 
+      <http://www.w3.org/2002/07/owl#propertyDisjointWith>, 	 
+      <http://www.w3.org/2002/07/owl#qualifiedCardinality>, 	 
+      <http://www.w3.org/2002/07/owl#sameAs>, 	 
+      <http://www.w3.org/2002/07/owl#someValuesFrom>, 	 
+      <http://www.w3.org/2002/07/owl#unionOf>, 	 
+      <http://www.w3.org/2002/07/owl#versionIRI>, 	 
+      <http://www.w3.org/2002/07/owl#versionInfo> 
+      ))
+}
+  
+order by ?p ?propertyType

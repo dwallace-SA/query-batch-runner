@@ -1,0 +1,38 @@
+# undefined classes 
+# lists things that are not defined, but used as classes (as object of rdf:type)
+
+prefix owl: <http://www.w3.org/2002/07/owl#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix dcao: <https://ontologies.semanticarts.com/dcao/>
+
+select distinct ?class 
+
+where {
+         
+  ?s rdf:type ?class .
+  
+  filter not exists {?class rdfs:subClassOf*/rdf:type owl:Class .}
+  
+  # list of classes that can be used without further definition (others should be defined)
+  filter (?class not in (
+    <http://dbpedia.org/ontology/Company>,
+    <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>,
+    <http://www.w3.org/2000/01/rdf-schema#Datatype>,
+    <http://www.w3.org/2002/07/owl#AllDifferent>,
+    <http://www.w3.org/2002/07/owl#AnnotationProperty>,
+    <http://www.w3.org/2002/07/owl#Class>,
+    <http://www.w3.org/2002/07/owl#DatatypeProperty>,
+    <http://www.w3.org/2002/07/owl#FunctionalProperty>,
+    <http://www.w3.org/2002/07/owl#InverseFunctionalProperty>,
+    <http://www.w3.org/2002/07/owl#ObjectProperty>,
+    <http://www.w3.org/2002/07/owl#Ontology>,
+    <http://www.w3.org/2002/07/owl#Restriction>,
+    <http://www.w3.org/2002/07/owl#SymmetricProperty>,
+    <http://www.w3.org/2002/07/owl#Thing>,
+    <http://www.w3.org/2002/07/owl#TransitiveProperty>,
+    <https://ontologies.industrybuildingblocks.com/ibbeo/IbbOrganization>,
+    <https://ontologies.industrybuildingblocks.com/ibbeo/Industry>
+    )) 
+  }
+order by ?class

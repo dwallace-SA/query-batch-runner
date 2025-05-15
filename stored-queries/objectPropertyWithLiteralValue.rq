@@ -1,0 +1,13 @@
+# object property with literal as object (an error)
+
+prefix owl: <http://www.w3.org/2002/07/owl#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+select ?s ?p ?o
+where {
+  ?s ?p ?o .
+  
+  ?p rdf:type owl:ObjectProperty .
+  
+  filter(!isIri(?o))
+  }
