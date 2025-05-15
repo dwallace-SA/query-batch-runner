@@ -31,13 +31,19 @@ if not config_file.exists():
         user_init=''
         endpoint_init = ''
 
-        user_prompt = input("Would you like to set a default AllegroGraph username? (Y/N): ")
-        if user_prompt.upper() == "Y":
-            user_init = input("Username: ")
+        ### This was optional before, but I think I will just make initial setup not ask for Y/N responses... more simple that way.
+        # user_prompt = input("Would you like to set a default AllegroGraph username? (Y/N): ")
+        # if user_prompt.upper() == "Y":
+        #     user_init = input("Username: ")
         
-        endpoint_prompt = input("Would you like to set a default AllegroGraph endpoint to target? (Y/N): ")
-        if endpoint_prompt.upper() == "Y":
-            endpoint_init = cleanupEndpoint(input("Endpoint: "))
+        # endpoint_prompt = input("Would you like to set a default AllegroGraph endpoint to target? (Y/N): ")
+        # if endpoint_prompt.upper() == "Y":
+        #     endpoint_init = cleanupEndpoint(input("Endpoint: "))
+
+        ### INITIAL SETUP ###
+        print('Initializing config, press enter / leave empty to skip.')
+        user_init = input('Set default AllegroGraph username (can be changed later)\n   Username: ')
+        endpoint_init = cleanupEndpoint(input('Set default AllegroGraph endpoint (can be changed later)\n   Endpoint: '))
         
         config_string = f'"username":"{user_init}","endpoint":"{endpoint_init}"'
         config_file.write_text('{' + config_string + '}',encoding="utf-8")
@@ -85,9 +91,9 @@ try: ## Try block - Reads in old auth, makes necessary changes based on argument
 
     if args.config == True:
         print(f"""
-              Current configured options:
-              Username: {"[Not set]" if newauth['username'] == '' else newauth['username']}
-              Endpoint: {"[Not set]" if newauth['endpoint'] == '' else f'{newauth['endpoint']}'}
+    Current configured options:
+    Username: {"[Not set]" if newauth['username'] == '' else newauth['username']}
+    Endpoint: {"[Not set]" if newauth['endpoint'] == '' else f'{newauth['endpoint']}'}
             """)
         quit()
 
@@ -95,8 +101,12 @@ try: ## Try block - Reads in old auth, makes necessary changes based on argument
         print(f"Set new allegrograph endpoint.")
         # Read in and clean up endpoint, removing /# if included.
         endpoint_in = cleanupEndpoint(input(f"Old endpoint: {newauth['endpoint']}\nNew endpoint: "))
-        # Write endpoint to config file.
-        newauth['endpoint'] = endpoint_in
+        # Write endpoint to config file. If no input given, ask if old endpoint should be kept or deleted.
+        if endpoint_in == '':
+           if input('\n~~~ No endpoint provided, keep old endpoint (Y) or delete old endpoint (N)? (Y/N): ').upper() != "Y":
+               newauth['endpoint'] = endpoint_in
+        else:
+            newauth['endpoint'] = endpoint_in
 
     if args.user == True:
         newauth['username'] = input(f'\nCurrent username: {newauth['username']}\nSet new username: ')
@@ -104,7 +114,15 @@ try: ## Try block - Reads in old auth, makes necessary changes based on argument
     with open('config.json', 'w') as auth:
         auth.write(json.dumps(newauth))
 
+    if args.endpoint == True or args.user == True:
+        exit(1)
+
 except KeyboardInterrupt:
+    exit(1)
+
+if not any(query_directory.glob('*.rq')):
+    print(f'\nNo queries found! Place queries (with .rq file extension) in the "./queries-to-run" directory and run script again.')
+    print('Type "query-batch-runner.py -h" to see all options.')
     exit(1)
 
 ##### Read in config.json to get any pre-defined variables. Prompt for any missing information.. #####
@@ -112,7 +130,7 @@ with open('config.json', 'r') as auth:
     keys = json.load(auth)
 try:
 
-    endpoint = keys['endpoint'] if keys['endpoint'] != "" else cleanupEndpoint(input("Endpoint to target: "))
+    endpoint = keys['endpoint'] if keys['endpoint'] != "" else cleanupEndpoint(input("No default endpoint set! (use -e command line option to set)\n  Endpoint: "))
 
     print(f"Current endpoint: {endpoint}")
 
