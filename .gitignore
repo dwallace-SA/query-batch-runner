@@ -172,3 +172,9 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Generated directories and config file(s)
+queries-to-run/
+results/
+completed-queries/
+config.json
