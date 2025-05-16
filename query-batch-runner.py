@@ -15,14 +15,25 @@ def runQueryBatch():
     query_directory = Path("./queries-to-run")
     output_directory = Path("./results")
     completed_directory = Path("./completed-queries")
+    sample_directory = Path("./sample-queries")
     config_file = Path("config.json")
     total_elapsed = 0
-    cat_in = ''
-    repo_in = ''
 
     ## Function to remove "#/" from URL copied from webview.
     def cleanupEndpoint(input: str):
         return input.replace("#/", "").removesuffix("/")
+
+    ## Function to move completed-queries back into queries-to-run directory.
+    def moveQueries(move_from: Path, copy = False):
+            print(f"\n{"Copying" if copy == True else "Moving"} all .rq files from {move_from} into the `./queries-to-run` directory.\n")
+            for file in move_from.iterdir():
+                if file.is_file():
+                    if copy == True:
+                        shutil.copy(file, f'./queries-to-run/{file.name}')
+                        print(f'Copied {file.name}')
+                    else:
+                        shutil.move(file, f'./queries-to-run/{file.name}')
+                        print(f'Moved {file.name}')
 
     ## Create necessary files if they did not exist / first time running the script
 
@@ -49,16 +60,20 @@ def runQueryBatch():
             config_file.write_text('{' + config_string + '}',encoding="utf-8")
         except KeyboardInterrupt:
             exit(1)
+    try:
+        if not query_directory.exists():
+            query_directory.mkdir(exist_ok=True)
 
-    if not query_directory.exists():
-        query_directory.mkdir(exist_ok=True)
+            print("\n First time running this script, necessary directories created! Place queries to be run in the 'queries-to-run' folder.")
+            if input("\n Would you like to copy the provided ABox Versioning sample queries into the 'queries-to-run' directory?\n   (Y/N)").upper() == "Y":
+                moveQueries(sample_directory, copy=True)
+            print("\n See all available options and arguments with 'query-batch-runner.py [-h or --help]'")
 
-        print("\nFirst time running this script, necessary directories created! Place queries to be run in the 'queries-to-run' folder.")
-        print("See available options and arguments with 'query-batch-runner.py [-h or --help]'")
-            
-        quit()
-    if not output_directory.exists():
-        output_directory.mkdir(exist_ok=True)
+            quit()
+        if not output_directory.exists():
+            output_directory.mkdir(exist_ok=True)
+    except KeyboardInterrupt:
+        exit(1)
 
     ## Command line arguments.
     arguments = ArgumentParser(description="SPARQL Query Batch Runner - Using curl and simple authentication, executes all SPARQL queries in a directory.",\
@@ -66,7 +81,7 @@ def runQueryBatch():
                             )
     arguments.add_argument("-c", "--config", action="store_true",help="View current configuration details.")
     arguments.add_argument("-e", "--endpoint", action="store_true", help="Change the saved AllegroGraph endpoint URL.")
-    arguments.add_argument("-m", "--move", action="store_true", default="store_false", help="Moves each query file into 'completed-queries' directory if successful.")
+    arguments.add_argument("-m", "--move", action="store_true", default="store_false", help="After execution, moves each query file into 'completed-queries' directory if successful.")
     arguments.add_argument("-rq", "--resetqueries", action="store_true", default="store_false", help="Moves all queries out of completed-queries directory back into the queries-to-run directory, then quits.")
     arguments.add_argument("-u", "--user", action="store_true", help="Change stored AllegroGraph username.")
 
@@ -78,22 +93,18 @@ def runQueryBatch():
         with open('config.json', "r") as oldauth:
             newauth = json.load(oldauth)
         if args.resetqueries == True:
-            print("\nResetting queries - Moving all .rq files from `./completed-queries` back into the `./queries-to-run` directory.")
-            for file in Path('./completed-queries').iterdir():
-                if file.is_file():
-                    shutil.move(file, f'./queries-to-run/{file.name}')
-                    print(f'Moved {file.name}')
+            moveQueries(completed_directory)
             quit()
 
         if args.move == True:
-            print(f"Successful queries will be moved to {completed_directory.absolute()}")
+            print(f"\nSuccessful queries will be moved to {completed_directory.absolute()}")
             completed_directory.mkdir(exist_ok=True)
 
         if args.config == True:
             print(f"""
-        Current configured options:
-        Username: {"[Not set]" if newauth['username'] == '' else newauth['username']}
-        Endpoint: {"[Not set]" if newauth['endpoint'] == '' else f'{newauth['endpoint']}'}
+   Current configured options:
+   Username: {"[Not set]" if newauth['username'] == '' else newauth['username']}
+   Endpoint: {"[Not set]" if newauth['endpoint'] == '' else f'{newauth['endpoint']}'}
                 """)
             quit()
 
@@ -117,14 +128,21 @@ def runQueryBatch():
 
         if args.endpoint == True or args.user == True:
             exit(1)
+        
+        if not any(query_directory.glob('*.rq')):
+            if any(completed_directory.glob("*.rq")):
+                print(f'\nNo queries found in "./queries-to-run". Found queries in the "./completed-queries" folder. \nWould you like to move them to the "./queries-to-run" folder and proceed?')
+                if input("   (Y/N): ").upper() == "Y":
+                    moveQueries(completed_directory)
+                else:
+                    print('\n No queries found to run!\n Place queries (with .rq file extension) in the "./queries-to-run" directory and run script again.')
+                    print(' Type "query-batch-runner.py -h" to see all options.')
+                    exit(1)
 
     except KeyboardInterrupt:
         exit(1)
 
-    if not any(query_directory.glob('*.rq')):
-        print(f'\nNo queries found! Place queries (with .rq file extension) in the "./queries-to-run" directory and run script again.')
-        print('Type "query-batch-runner.py -h" to see all options.')
-        exit(1)
+
 
     ##### Read in config.json to get any pre-defined variables. Prompt for any missing information.. #####
     with open('config.json', 'r') as auth:
@@ -133,7 +151,7 @@ def runQueryBatch():
 
         endpoint = keys['endpoint'] if keys['endpoint'] != "" else cleanupEndpoint(input("No default endpoint set! (use -e command line option to set)\n  Endpoint: "))
 
-        print(f"Current endpoint: {endpoint}")
+        print(f"\nCurrent endpoint: {endpoint}")
 
         print("\nAllegroGraph login credentials:")
 
