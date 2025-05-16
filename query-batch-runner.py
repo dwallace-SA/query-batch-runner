@@ -21,7 +21,7 @@ def runQueryBatch():
 
     ## Function to remove "#/" from URL copied from webview.
     def cleanupEndpoint(input: str):
-        return input.replace("#/", "").removesuffix("/")
+        return input.replace("/#/", "/").removesuffix("/").strip()
 
     ## Function to move completed-queries back into queries-to-run directory.
     def moveQueries(move_from: Path, copy = False):
@@ -65,7 +65,7 @@ def runQueryBatch():
             query_directory.mkdir(exist_ok=True)
 
             print("\n First time running this script, necessary directories created! Place queries to be run in the 'queries-to-run' folder.")
-            if input("\n Would you like to copy the provided ABox Versioning sample queries into the 'queries-to-run' directory?\n   (Y/N)").upper() == "Y":
+            if input("\n Would you like to copy the provided ABox Versioning sample queries into the 'queries-to-run' directory?\n   (Y/N): ").upper() == "Y":
                 moveQueries(sample_directory, copy=True)
             print("\n See all available options and arguments with 'query-batch-runner.py [-h or --help]'")
 
@@ -103,9 +103,12 @@ def runQueryBatch():
         if args.config == True:
             print(f"""
    Current configured options:
+                  
    Username: {"[Not set]" if newauth['username'] == '' else newauth['username']}
    Endpoint: {"[Not set]" if newauth['endpoint'] == '' else f'{newauth['endpoint']}'}
-                """)
+                
+   Use the arguments [-u][--user] or [-e][--endpoint] to update these stored values. 
+    """)
             quit()
 
         if args.endpoint == True:
@@ -134,10 +137,13 @@ def runQueryBatch():
                 print(f'\nNo queries found in "./queries-to-run". Found queries in the "./completed-queries" folder. \nWould you like to move them to the "./queries-to-run" folder and proceed?')
                 if input("   (Y/N): ").upper() == "Y":
                     moveQueries(completed_directory)
-                else:
-                    print('\n No queries found to run!\n Place queries (with .rq file extension) in the "./queries-to-run" directory and run script again.')
-                    print(' Type "query-batch-runner.py -h" to see all options.')
-                    exit(1)
+        if not any(query_directory.glob("*.rq")):
+            if input('\n No queries found to run! Would you like to copy the sample queries into "./queries-to-run" and proceed?\n   (Y/N): ').upper() == "Y":
+                moveQueries(sample_directory, True) ## Copies (not moves) sample queries into correct directory.
+            else:
+                print('\n Place queries (with .rq file extension) in the "./queries-to-run" directory and run script again.')
+                print(' Type "query-batch-runner.py -h" to see all options.')
+                exit(1)
 
     except KeyboardInterrupt:
         exit(1)
